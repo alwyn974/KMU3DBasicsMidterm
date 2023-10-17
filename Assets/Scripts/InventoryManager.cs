@@ -4,12 +4,22 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
+    public static InventoryManager Instance { get; private set; }
     public TMP_Text infoText;
-    private int _life = 3;
-    private int _coins;
-    private int _score;
+    private static int _life = 3;
+    private static int _coins;
+    private static int _score;
 
-    void Start()
+    private void Awake()
+    {
+        // If there is an instance, and it's not me, delete myself.
+        if (Instance != null && Instance != this)
+            Destroy(this);
+        else
+            Instance = this;
+    }
+
+    private void Start()
     {
         UpdateText();
     }
@@ -31,27 +41,27 @@ public class InventoryManager : MonoBehaviour
         get => _score;
         set => _score = value;
     }
-    
+
     public void AddLife(int value = 1)
     {
         _life += value;
         UpdateText();
     }
-    
+
     public void AddCoin(int value = 1)
     {
         _coins += value;
         AddScore(value * 100);
         UpdateText();
     }
-    
+
     public void AddScore(int value)
     {
         _score += value;
         UpdateText();
     }
-    
-    
+
+
     public void Reset()
     {
         _life = 3;

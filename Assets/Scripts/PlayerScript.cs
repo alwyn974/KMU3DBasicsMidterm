@@ -1,58 +1,80 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 public class PlayerScript : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private SpriteRenderer _spriteRenderer;
+    private Collider2D _collider2D;
     private Animator _animator;
-    private CircleCollider2D _groundCollider;
+    private bool _isInvincible;
+    private bool _bonusShoot;
+    private bool _onSolidSurface;
+    private bool _stoppedJumping;
     private InventoryManager _inventoryManager;
-    private bool _isInvincible = false;
-    private bool _bonusShoot = false;
-    private bool _onSolidSurface = false;
-    private float _jumpTime;
-    private bool _jumping;
-    private bool _jumpCancelled;
 
     public Camera gameCamera;
-    public float speed = 5;
-    public float buttonTime = 0.5f;
-    public float jumpHeight = 5;
-    public float cancelRate = 100;
+    public float speed = 7;
+
+    public float jumpForce = 5;
+    public float jumpTime = 8;
+    private float _jumpTimeCounter;
 
 
     public InventoryManager InventoryManager => _inventoryManager;
+    public bool IsInvincible => _isInvincible;
 
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _collider2D = GetComponent<Collider2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
-        _groundCollider = GetComponent<CircleCollider2D>();
-        _inventoryManager = GetComponent<InventoryManager>();
+        _inventoryManager = InventoryManager.Instance;
+        _inventoryManager.UpdateText();
+
+        _jumpTimeCounter = jumpTime;
     }
 
     void Update()
     {
-        PlayerUpdateJump();
+        if (_onSolidSurface)
+            _jumpTimeCounter = jumpTime;
+
+        PlayerJump();
     }
 
     void FixedUpdate()
     {
         PlayerFixedWalk();
-        PlayerFixedJump();
         CameraFollowPlayer();
     }
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Solid"))
+        if (other.gameObject.CompareTag("ColliderBack"))
+        {
+            Physics2D.IgnoreCollision(other.collider, _collider2D);
+            return;
+        }
+        
+        if (other.gameObject.CompareTag("Solid") && other.contacts[0].normal.y > 0.5f)
         {
             _onSolidSurface = true;
+            _animator.SetBool("onSolidSurface", _onSolidSurface);
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Solid"))
+        {
+            _onSolidSurface = false;
             _animator.SetBool("onSolidSurface", _onSolidSurface);
         }
     }
@@ -72,37 +94,45 @@ public class PlayerScript : MonoBehaviour
         _animator.SetInteger("Speed", Mathf.Abs((int)_rb.velocity.x));
     }
 
-    void PlayerFixedJump()
+    void PlayerJump()
     {
-        if (_jumpCancelled && _jumping && _rb.velocity.y > 0)
-            _rb.AddForce(Vector2.down * cancelRate);
-    }
-
-    void PlayerUpdateJump()
-    {
-        if (Input.GetButton("Jump"))
+        if (!_onSolidSurface) return;
+        var isJumping = Input.GetButton("Jump");
+        if (isJumping)
         {
-            var jumpForce = Mathf.Sqrt(jumpHeight * -2 * (Physics2D.gravity.y * _rb.gravityScale));
-            _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Force);
-            _animator.SetBool("Jump", true);
-            _jumping = true;
-            _jumpCancelled = false;
-            _jumpTime = 0;
-            _jumpTime += Time.deltaTime;
+            _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
+            _stoppedJumping = false;
+
+            if (!_stoppedJumping && _jumpTimeCounter > 0)
+            {
+                _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
+                _jumpTimeCounter -= Time.deltaTime;
+            }
+        }
+        else
+        {
+            _jumpTimeCounter = 0;
+            _stoppedJumping = true;
         }
 
-        if (_jumping)
+        _animator.SetBool("Jump", isJumping);
+    }
+
+    public void Die()
+    {
+        _inventoryManager.AddLife(-1);
+        if (_inventoryManager.Life <= 0)
         {
-            _jumpTime += Time.deltaTime;
-            if (Input.GetKeyUp(KeyCode.Space))
-            {
-                _jumpCancelled = true;
-            }
-            if (_jumpTime > buttonTime)
-            {
-                _jumping = false;
-                _animator.SetBool("Jump", false);
-            }
+            Debug.Log("Game Over");
+        }
+        else
+        {
+            Debug.Log("Respawn");
+            // delay respawn
+            Thread.Sleep(1500);
+            var inventoryManager = _inventoryManager;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            _inventoryManager = inventoryManager;
         }
     }
 
