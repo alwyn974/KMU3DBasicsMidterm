@@ -53,6 +53,12 @@ public class PlayerScript : MonoBehaviour
     {
         PlayerFixedWalk();
         CameraFollowPlayer();
+        
+        if (_isInvincible)
+            _spriteRenderer.color = new Color(1, 1, 1, Mathf.PingPong(Time.time * 10, 1));
+        
+        if (transform.position.y < -10)
+            Die();
     }
 
     void OnCollisionEnter2D(Collision2D other)
@@ -128,12 +134,14 @@ public class PlayerScript : MonoBehaviour
         else
         {
             Debug.Log("Respawn");
-            // delay respawn
-            Thread.Sleep(1500);
-            var inventoryManager = _inventoryManager;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            _inventoryManager = inventoryManager;
+            StartCoroutine(ResetScene());
         }
+    }
+
+    private IEnumerator ResetScene()
+    {
+        yield return new WaitForSeconds(0.5f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void OnPlayerGetBonus(BonusType type)
