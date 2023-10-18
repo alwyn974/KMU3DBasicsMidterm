@@ -62,11 +62,17 @@ public class GoombaScript : MonoBehaviour
 
             playerScript.Die();
         }
+        
+        if (other.gameObject.CompareTag("Bullet"))
+        {
+            Die();
+            Destroy(other.gameObject, 0.5f); // bullet
+        }
     }
 
     private void Die(bool bullet = false)
     {
-        playerScript.InventoryManager.AddScore(((int)type) + (bullet ? -10 : 0));
+        playerScript.GameManager.AddScore(((int)type) + (bullet ? -10 : 0));
         _stunned = true;
         _animator.SetBool("Stunned", true);
         _collider2D.enabled = false;

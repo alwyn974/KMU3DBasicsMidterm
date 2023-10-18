@@ -46,7 +46,6 @@ public class ParallaxScript : MonoBehaviour
 
         if (dist.x > _startPos.x + _length.x)
             _startPos.x += _length.x;
-
         if (dist.x < _startPos.x - _length.x)
             _startPos.x -= _length.x;
 

@@ -1,16 +1,25 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class InventoryManager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public static InventoryManager Instance { get; private set; }
+    public static GameManager Instance { get; private set; }
     public TMP_Text infoText;
     public TMP_Text lifeText;
     public TMP_Text coinsText;
     private static int _life = 3;
     private static int _coins;
     private static int _score;
+    private static int _highScore;
+    private static Level _level;
+
+    private static Dictionary<Level, bool> _bossKilled = _bossKilled = new Dictionary<Level, bool>
+    {
+        { Level.One, false },
+        { Level.Two, false },
+        { Level.Three, false }
+    };
 
     private void Awake()
     {
@@ -44,6 +53,24 @@ public class InventoryManager : MonoBehaviour
         set => _score = value;
     }
 
+    public int HighScore
+    {
+        get => _highScore;
+        set => _highScore = value;
+    }
+
+    public Level Level
+    {
+        get => _level;
+        set => _level = value;
+    }
+    
+    public Dictionary<Level, bool> BossKilled
+    {
+        get => _bossKilled;
+        set => _bossKilled = value;
+    }
+
     public void AddLife(int value = 1)
     {
         _life += value;
@@ -54,7 +81,6 @@ public class InventoryManager : MonoBehaviour
     {
         _coins += value;
         AddScore(value * 100);
-        UpdateText();
     }
 
     public void AddScore(int value)
@@ -63,12 +89,18 @@ public class InventoryManager : MonoBehaviour
         UpdateText();
     }
 
-
-    public void Reset()
+    public void Reset() // aka restart
     {
         _life = 3;
         _coins = 0;
         _score = 0;
+        _level = Level.One;
+        _bossKilled = new Dictionary<Level, bool>
+        {
+            { Level.One, false },
+            { Level.Two, false },
+            { Level.Three, false }
+        };
         UpdateText();
     }
 
@@ -79,4 +111,11 @@ public class InventoryManager : MonoBehaviour
         lifeText.text = $"x{_life}";
         coinsText.text = $"x{_coins}";
     }
+}
+
+public enum Level
+{
+    One,
+    Two,
+    Three
 }

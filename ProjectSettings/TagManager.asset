@@ -9,11 +9,14 @@ TagManager:
   - ColliderBack
   - Enemy
   - Bullet
+  - Boss
+  - Decorations
+  - Bonus
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - 

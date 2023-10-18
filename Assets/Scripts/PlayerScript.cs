@@ -8,16 +8,16 @@ using UnityEngine.Serialization;
 
 public class PlayerScript : MonoBehaviour
 {
+    // -8.279013, -3.40203
     private Rigidbody2D _rb;
     private SpriteRenderer _spriteRenderer;
-    private Collider2D _collider2D;
     private Animator _animator;
     private bool _isInvincible;
     private bool _bonusShoot;
     private bool _onSolidSurface;
     private bool _stoppedJumping;
     private bool _dead;
-    private InventoryManager _inventoryManager;
+    private GameManager _gameManager;
 
     public GameObject bulletPrefab;
     public Camera gameCamera;
@@ -26,27 +26,29 @@ public class PlayerScript : MonoBehaviour
     public float jumpForce = 5;
     public float jumpTime = 8;
     private float _jumpTimeCounter;
+    private float _shootIntervalCounter;
 
 
-    public InventoryManager InventoryManager => _inventoryManager;
+    public GameManager GameManager => _gameManager;
     public bool IsInvincible => _isInvincible;
 
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _collider2D = GetComponent<Collider2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
-        _inventoryManager = InventoryManager.Instance;
-        _inventoryManager.UpdateText();
+        _gameManager = GameManager.Instance;
+        _gameManager.UpdateText();
 
         _jumpTimeCounter = jumpTime;
     }
 
     void Update()
     {
+        _shootIntervalCounter -= Time.deltaTime;
         if (_onSolidSurface)
             _jumpTimeCounter = jumpTime;
+        _animator.SetBool("BonusShoot", _bonusShoot);
 
         PlayerJump();
         PlayerShoot();
@@ -61,9 +63,6 @@ public class PlayerScript : MonoBehaviour
             _spriteRenderer.color = new Color(1, 1, 1, Mathf.PingPong(Time.time * 10, 1));
         else
             _spriteRenderer.color = new Color(1, 1, 1, 1);
-
-        // if (transform.position.y < 0)
-        //     _animator.SetBool("isFalling", true);
         
         if (transform.position.y < -10 && !_dead)
         {
@@ -72,22 +71,28 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Solid") && other.contacts[0].normal.y > 0.5f)
+        if (other.gameObject.CompareTag("Solid"))
         {
             _onSolidSurface = true;
             _animator.SetBool("onSolidSurface", _onSolidSurface);
         }
     }
 
-    private void OnCollisionExit2D(Collision2D other)
+    private void OnTriggerExit2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Solid"))
         {
             _onSolidSurface = false;
             _animator.SetBool("onSolidSurface", _onSolidSurface);
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Bullet")) // ignore collision
+            Physics2D.IgnoreCollision(GetComponent<Collider2D>(), other.collider);
     }
 
     void PlayerFixedWalk()
@@ -134,16 +139,20 @@ public class PlayerScript : MonoBehaviour
         if (!_bonusShoot) return;
         // if shift or ctrl is pressed ?
         if (!Input.GetButtonDown("Fire1")) return;
+        // cooldown
+        if (_shootIntervalCounter > 0) return;
+        _shootIntervalCounter = 1f;
         
-        Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Instantiate(bulletPrefab, transform.position + new Vector3(1f, 0f, 0f), Quaternion.identity);
     }
 
     public void Die()
     {
-        _inventoryManager.AddLife(-1);
-        if (_inventoryManager.Life <= 0)
+        _gameManager.AddLife(-1);
+        if (_gameManager.Life <= 0)
         {
             Debug.Log("Game Over");
+            // TODO: Game Over
         }
         else
         {
@@ -163,15 +172,17 @@ public class PlayerScript : MonoBehaviour
         switch (type)
         {
             case BonusType.Shield:
-                _inventoryManager.AddScore(1000);
+                _gameManager.AddScore(1000);
                 StartCoroutine(Invincible());
                 break;
             case BonusType.Flower:
-                _inventoryManager.AddScore(200);
-                StartCoroutine(BonusShoot());
+                _gameManager.AddScore(200);
+                // StartCoroutine(BonusShoot());
+                _bonusShoot = true;
+                _animator.SetBool("BonusShoot", _bonusShoot);
                 break;
             case BonusType.Coin:
-                _inventoryManager.AddCoin();
+                _gameManager.AddCoin();
                 break;
         }
     }
@@ -200,5 +211,21 @@ public class PlayerScript : MonoBehaviour
         if (cameraPosition.x < 0)
             cameraPosition = new Vector3(0, cameraPosition.y, cameraPosition.z);
         gameCamera.transform.position = cameraPosition;
+    }
+
+    public void NextLevel()
+    {
+        if (_gameManager.Level == Level.Three)
+        {
+            _gameManager.AddScore((int) _gameManager.Level * 2000);
+            Debug.Log("You win");
+            // TODO: Win
+            return;
+        }
+
+        _gameManager.BossKilled[_gameManager.Level] = true;
+        _gameManager.Level++;
+        _gameManager.AddScore((int) _gameManager.Level * 2000);
+        SceneManager.LoadScene($"Level0{(int)_gameManager.Level + 1}Scene");
     }
 }
