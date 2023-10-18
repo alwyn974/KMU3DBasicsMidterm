@@ -6,6 +6,8 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
     public TMP_Text infoText;
+    public TMP_Text lifeText;
+    public TMP_Text coinsText;
     private static int _life = 3;
     private static int _coins;
     private static int _score;
@@ -72,6 +74,9 @@ public class InventoryManager : MonoBehaviour
 
     public void UpdateText()
     {
-        infoText.text = $"Life: {_life}\nCoins: {_coins}\nScore: {_score}";
+        // infoText.text = $"Life: {_life}\nCoins: {_coins}\nScore: {_score}";
+        infoText.text = $"Score: {_score}";
+        lifeText.text = $"x{_life}";
+        coinsText.text = $"x{_coins}";
     }
 }

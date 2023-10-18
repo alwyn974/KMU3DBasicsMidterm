@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class BonusScript : MonoBehaviour
 {
@@ -12,10 +13,9 @@ public class BonusScript : MonoBehaviour
         _playerScript = FindObjectOfType<PlayerScript>();
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.gameObject.CompareTag("player")) return;
-        _collider2D.enabled = false;
         switch (type)
         {
             case BonusType.Shield:

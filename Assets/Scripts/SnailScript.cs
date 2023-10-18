@@ -51,7 +51,7 @@ public class SnailScript : MonoBehaviour
                 _collider2D.enabled = false;
                 _rb.bodyType = RigidbodyType2D.Static;
                 
-                Destroy(gameObject, 2.5f);
+                Destroy(gameObject, 1.5f);
                 return;
             }
             if (playerScript.IsInvincible) return;
