@@ -197,7 +197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 1829231475679703328, guid: 8127c3c8e3d11464f8bd5069e9414b6a, type: 3}
   gameCamera: {fileID: 0}
-  speed: 5
+  speed: 3
   jumpForce: 5
   jumpTime: 8
 --- !u!114 &1811977509154697796

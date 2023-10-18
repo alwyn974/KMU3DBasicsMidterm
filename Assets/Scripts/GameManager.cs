@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,21 @@ public class GameManager : MonoBehaviour
     private static int _score;
     private static int _highScore;
     private static Level _level;
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene($"Level0{(int) _level + 1}Scene");
+    }
+    
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    public void SoundToggle()
+    {
+        // TODO: Implement sound toggle, with sound manager.
+    }
 
     private static Dictionary<Level, bool> _bossKilled = _bossKilled = new Dictionary<Level, bool>
     {
