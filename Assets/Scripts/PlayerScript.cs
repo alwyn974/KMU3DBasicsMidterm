@@ -16,8 +16,10 @@ public class PlayerScript : MonoBehaviour
     private bool _bonusShoot;
     private bool _onSolidSurface;
     private bool _stoppedJumping;
+    private bool _dead;
     private InventoryManager _inventoryManager;
 
+    public GameObject bulletPrefab;
     public Camera gameCamera;
     public float speed = 7;
 
@@ -47,28 +49,31 @@ public class PlayerScript : MonoBehaviour
             _jumpTimeCounter = jumpTime;
 
         PlayerJump();
+        PlayerShoot();
     }
 
     void FixedUpdate()
     {
         PlayerFixedWalk();
         CameraFollowPlayer();
-        
+
         if (_isInvincible)
             _spriteRenderer.color = new Color(1, 1, 1, Mathf.PingPong(Time.time * 10, 1));
+        else
+            _spriteRenderer.color = new Color(1, 1, 1, 1);
+
+        // if (transform.position.y < 0)
+        //     _animator.SetBool("isFalling", true);
         
-        if (transform.position.y < -10)
+        if (transform.position.y < -10 && !_dead)
+        {
+            _dead = true;
             Die();
+        }
     }
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("ColliderBack"))
-        {
-            Physics2D.IgnoreCollision(other.collider, _collider2D);
-            return;
-        }
-        
         if (other.gameObject.CompareTag("Solid") && other.contacts[0].normal.y > 0.5f)
         {
             _onSolidSurface = true;
@@ -124,6 +129,15 @@ public class PlayerScript : MonoBehaviour
         _animator.SetBool("Jump", isJumping);
     }
 
+    void PlayerShoot()
+    {
+        if (!_bonusShoot) return;
+        // if shift or ctrl is pressed ?
+        if (!Input.GetButtonDown("Fire1")) return;
+        
+        Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+    }
+
     public void Die()
     {
         _inventoryManager.AddLife(-1);
@@ -146,14 +160,36 @@ public class PlayerScript : MonoBehaviour
 
     public void OnPlayerGetBonus(BonusType type)
     {
-        if (type == BonusType.Flower)
+        switch (type)
         {
-            Debug.Log("shoot bonus");
+            case BonusType.Shield:
+                _inventoryManager.AddScore(1000);
+                StartCoroutine(Invincible());
+                break;
+            case BonusType.Flower:
+                _inventoryManager.AddScore(200);
+                StartCoroutine(BonusShoot());
+                break;
+            case BonusType.Coin:
+                _inventoryManager.AddCoin();
+                break;
         }
-        else if (type == BonusType.Shield)
-        {
-            Debug.Log("Invincible bonus");
-        }
+    }
+
+    private IEnumerator Invincible()
+    {
+        _isInvincible = true;
+        yield return new WaitForSeconds(7);
+        _isInvincible = false;
+    }
+
+    private IEnumerator BonusShoot()
+    {
+        _bonusShoot = true;
+        _animator.SetBool("BonusShoot", _bonusShoot);
+        yield return new WaitForSeconds(10);
+        _bonusShoot = false;
+        _animator.SetBool("BonusShoot", _bonusShoot);
     }
 
     void CameraFollowPlayer()

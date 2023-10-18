@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-public class SnailScript : MonoBehaviour
+public class GoombaScript : MonoBehaviour
 {
     private Rigidbody2D _rb;
     private Collider2D _collider2D;
@@ -13,7 +10,8 @@ public class SnailScript : MonoBehaviour
     private bool _stunned;
     public PlayerScript playerScript;
     public float speed = -0.25f;
-    
+    public GoombaType type;
+
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -28,10 +26,8 @@ public class SnailScript : MonoBehaviour
         _rb.velocity = new Vector2(speed, _rb.velocity.y);
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (_stunned) return;
-        
         if (other.gameObject.CompareTag("ColliderBack"))
         {
             var velocity = _rb.velocity;
@@ -40,23 +36,48 @@ public class SnailScript : MonoBehaviour
             _spriteRenderer.flipX = !_spriteRenderer.flipX;
         }
 
+        if (other.gameObject.CompareTag("Bullet"))
+        {
+            Die();
+            Destroy(other.gameObject, 0.5f); // bullet
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (_stunned) return;
+        // ignore collisions with other enemies
+        if (other.gameObject.CompareTag("Enemy"))
+            Physics2D.IgnoreCollision(_collider2D, other.collider);
+
         if (other.gameObject.CompareTag("player"))
         {
             // check if player has collided from top
-            if (other.gameObject.transform.position.y > transform.position.y + 0.5f)
+            if (other.gameObject.transform.position.y > transform.position.y + 0.5f || playerScript.IsInvincible)
             {
-                playerScript.InventoryManager.AddScore(200);
-                _stunned = true;
-                _animator.SetBool("Stunned", true);
-                _collider2D.enabled = false;
-                _rb.bodyType = RigidbodyType2D.Static;
-                
-                Destroy(gameObject, 1.5f);
+                Die();
                 return;
             }
-            if (playerScript.IsInvincible) return;
-            
+            // if (playerScript.IsInvincible) return;
+
             playerScript.Die();
         }
     }
+
+    private void Die(bool bullet = false)
+    {
+        playerScript.InventoryManager.AddScore(((int)type) + (bullet ? -10 : 0));
+        _stunned = true;
+        _animator.SetBool("Stunned", true);
+        _collider2D.enabled = false;
+        _rb.bodyType = RigidbodyType2D.Static;
+
+        Destroy(gameObject, 1f);
+    }
+}
+
+public enum GoombaType
+{
+    Snail = 100,
+    Beetle = 200,
 }

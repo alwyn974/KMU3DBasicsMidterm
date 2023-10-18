@@ -8,6 +8,7 @@ TagManager:
   - player
   - ColliderBack
   - Enemy
+  - Bullet
   layers:
   - Default
   - TransparentFX
