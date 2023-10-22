@@ -28,6 +28,7 @@ public class BulletScript : MonoBehaviour
         if (other.gameObject.CompareTag("Decorations") || other.gameObject.CompareTag("player")) return;
         _animator.SetBool("Explode", true);
         _exploded = true;
+        GameManager.Instance.PlaySound(GameManager.Instance.PlayerShootHit);
         // Destroy if collide with anything
         Destroy(gameObject, 0.5f);
     }

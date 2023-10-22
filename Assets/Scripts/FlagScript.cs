@@ -33,7 +33,7 @@ public class FlagScript : MonoBehaviour
         if (gameManager.BossKilled[gameManager.Level] && !_flagDown)
         {
             _flagDown = true;
-            playerScript.PlaySound(playerScript.GameManager.flagDownSound);
+            playerScript.PlaySound(playerScript.GameManager.FlagDownSound);
         }
     }
 }

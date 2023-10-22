@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class CastleScript : MonoBehaviour
@@ -9,6 +10,15 @@ public class CastleScript : MonoBehaviour
         if (!(other.gameObject.CompareTag("player"))) return;
         var gameManager = playerScript.GameManager;
         if (gameManager.BossKilled[gameManager.Level])
-            playerScript.NextLevel();
+        {
+            playerScript.PlaySound(gameManager.CastleSound);
+            StartCoroutine(NextLevel());
+        }
+    }
+
+    private IEnumerator NextLevel()
+    {
+        yield return new WaitForSeconds(2); 
+        playerScript.NextLevel();
     }
 }

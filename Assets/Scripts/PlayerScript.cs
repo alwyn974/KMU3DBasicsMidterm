@@ -126,7 +126,7 @@ public class PlayerScript : MonoBehaviour
         {
             _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
             _stoppedJumping = false;
-            _gameManager.PlaySound(_audioSource, _gameManager.jumpSound);
+            _gameManager.PlaySound(_audioSource, _gameManager.JumpSound);
             if (!_stoppedJumping && _jumpTimeCounter > 0)
             {
                 _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
@@ -152,17 +152,20 @@ public class PlayerScript : MonoBehaviour
         _shootIntervalCounter = 1f;
         
         var bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
+        PlaySound(_gameManager.PlayerShoot);
         if (transform.localScale.x < 0)
             bullet.left = true;
     }
 
     public void Die()
     {
+        PlaySound(_gameManager.PlayerDeath);
         _gameManager.AddLife(-1);
         if (_gameManager.Life <= 0)
         {
             Debug.Log("Game Over");
             // TODO: Game Over
+            PlaySound(_gameManager.LoseSound);
         }
         else
         {
@@ -183,7 +186,7 @@ public class PlayerScript : MonoBehaviour
         {
             case BonusType.Shield:
                 _gameManager.AddScore(1000);
-                _gameManager.PlaySound(_audioSource, _gameManager.powerUpSound);
+                _gameManager.PlaySound(_audioSource, _gameManager.PowerUpSound);
                 StartCoroutine(Invincible());
                 break;
             case BonusType.Flower:
@@ -191,11 +194,11 @@ public class PlayerScript : MonoBehaviour
                 // StartCoroutine(BonusShoot());
                 _bonusShoot = true;
                 _animator.SetBool("BonusShoot", _bonusShoot);
-                _gameManager.PlaySound(_audioSource, _gameManager.powerUpSound);
+                _gameManager.PlaySound(_audioSource, _gameManager.PowerUpSound);
                 break;
             case BonusType.Coin:
                 _gameManager.AddCoin();
-                _gameManager.PlaySound(_audioSource, _gameManager.coinSound);
+                _gameManager.PlaySound(_audioSource, _gameManager.CoinSound);
                 break;
         }
     }
@@ -203,8 +206,10 @@ public class PlayerScript : MonoBehaviour
     private IEnumerator Invincible()
     {
         _isInvincible = true;
-        yield return new WaitForSeconds(7);
+        PlaySound(_gameManager.InvincibleMusic);
+        yield return new WaitForSeconds(10);
         _isInvincible = false;
+        PlaySound(_gameManager.PowerDown);
     }
 
     private IEnumerator BonusShoot()
@@ -242,7 +247,7 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
-        _gameManager.PlaySound(_audioSource, _gameManager.castleSound);
+        _gameManager.PlaySound(_audioSource, _gameManager.CastleSound);
         _gameManager.BossKilled[_gameManager.Level] = true;
         _gameManager.Level++;
         _gameManager.AddScore((int) _gameManager.Level * 2000);

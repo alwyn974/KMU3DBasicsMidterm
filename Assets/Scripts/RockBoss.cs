@@ -61,7 +61,7 @@ public class RockBoss : MonoBehaviour
                 yield return new WaitForSeconds(0.5f);
                 // shoot rock projectile from top of boss
                 var rock = Instantiate(rockPrefab, transform.position + new Vector3(-1, 0.5f, 0), Quaternion.identity);
-                playerScript.PlaySound(GameManager.Instance.bossShootSound);
+                playerScript.PlaySound(GameManager.Instance.BossShootSound);
                 // add velocity to have a parabolic trajectory
                 rock.GetComponent<Rigidbody2D>().velocity = new Vector2(-1, 1) * 5;
                 // rock.GetComponent<Rigidbody2D>().velocity = new Vector2(-1, 0) * 5;
@@ -95,14 +95,7 @@ public class RockBoss : MonoBehaviour
             // blink sprite in red
             StartCoroutine(SpriteBlink());
 
-            if (life < 0)
-            {
-                _dead = true;
-                _animator.SetTrigger("Death");
-                _collider2D.enabled = false;
-                _rb.bodyType = RigidbodyType2D.Static;
-                playerScript.GameManager.BossKilled[bossLevel] = true;
-            }
+            if (life < 0) Die();
 
             Destroy(other.gameObject, 0.5f); // bullet
         }
@@ -117,17 +110,20 @@ public class RockBoss : MonoBehaviour
             // blink sprite in red
             StartCoroutine(SpriteBlink());
 
-            if (life < 0)
-            {
-                _dead = true;
-                _animator.SetTrigger("Death");
-                _collider2D.enabled = false;
-                _rb.bodyType = RigidbodyType2D.Static;
-                playerScript.GameManager.BossKilled[bossLevel] = true;
-            }
+            if (life < 0) Die();
 
             Destroy(other.gameObject, 0.5f); // bullet
         }
+    }
+
+    private void Die()
+    {
+        _dead = true;
+        _animator.SetTrigger("Death");
+        _collider2D.enabled = false;
+        _rb.bodyType = RigidbodyType2D.Static;
+        playerScript.PlaySound(playerScript.GameManager.BossDeath);
+        playerScript.GameManager.BossKilled[bossLevel] = true;
     }
 
     public void CancelAnimator()

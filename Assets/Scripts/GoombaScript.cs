@@ -73,6 +73,7 @@ public class GoombaScript : MonoBehaviour
     private void Die(bool bullet = false)
     {
         playerScript.GameManager.AddScore(((int)type) + (bullet ? -10 : 0));
+        playerScript.PlaySound(GameManager.Instance.StompSound);
         _stunned = true;
         _animator.SetBool("Stunned", true);
         _collider2D.enabled = false;

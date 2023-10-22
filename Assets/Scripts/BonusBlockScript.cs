@@ -38,6 +38,7 @@ public class BonusBlockScript : MonoBehaviour
         // create ternary based on type
         var prefab = type == BonusType.Shield ? bonusShieldPrefab :
             type == BonusType.Flower ? bonusFlowerPrefab : bonusCoinPrefab;
+        GameManager.Instance.PlaySound(GameManager.Instance.PowerUpSpawn);
         Instantiate(prefab, transform.position + Vector3.up, Quaternion.identity);
 
         _animator.SetBool("isUsed", _used);

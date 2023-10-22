@@ -47,6 +47,7 @@ public class BossProjectile : MonoBehaviour
         {
             _animator.SetBool("Explode", true);
             _exploded = true;
+            _playerScript.GameManager.AddScore(50);
             Destroy(gameObject, 0.2f);
         }
     }

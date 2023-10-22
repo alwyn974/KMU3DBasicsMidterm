@@ -9,14 +9,23 @@ public class GameManager : MonoBehaviour
     public TMP_Text infoText;
     public TMP_Text lifeText;
     public TMP_Text coinsText;
-    public AudioClip clickSound;
-    public AudioClip jumpSound;
-    public AudioClip bossShootSound;
-    public AudioClip flagDownSound; // win
-    public AudioClip castleSound; // win
-    public AudioClip coinSound;
-    public AudioClip powerUpSound; // bonus
-    public AudioClip loseSound; // lose
+    public AudioClip ClickSound { get; private set; }
+    public AudioClip JumpSound { get; private set; }
+    public AudioClip BossShootSound { get; private set; }
+    public AudioClip FlagDownSound { get; private set; } // win
+    public AudioClip CastleSound { get; private set; } // win
+    public AudioClip CoinSound { get; private set; }
+    public AudioClip PowerUpSound { get; private set; } // bonus
+    public AudioClip LoseSound { get; private set; } // lose
+    public AudioClip PlayerDeath { get; private set; }
+    public AudioClip PlayerShoot { get; private set; }
+    public AudioClip PowerUpSpawn { get; private set; }
+    public AudioClip InvincibleMusic { get; private set; }
+    public AudioClip PowerDown { get; private set; }
+    public AudioClip BossDeath { get; private set; }
+    public AudioClip PlayerShootHit { get; private set; }
+    public AudioClip StompSound { get; private set; }
+
     private static float _volume = 0.5f;
     private static int _life = 3;
     private static int _coins;
@@ -53,6 +62,23 @@ public class GameManager : MonoBehaviour
             Destroy(this);
         else
             Instance = this;
+        // instanciate audioclip from code with the path of Assets/Sounds/...
+        ClickSound = Resources.Load<AudioClip>("Sounds/minecraft_click");
+        JumpSound = Resources.Load<AudioClip>("Sounds/smw_jump");
+        BossShootSound = Resources.Load<AudioClip>("Sounds/boss7_shot");
+        FlagDownSound = Resources.Load<AudioClip>("Sounds/flag_down");
+        CastleSound = Resources.Load<AudioClip>("Sounds/sm64_high_score");
+        CoinSound = Resources.Load<AudioClip>("Sounds/coin");
+        PowerUpSound = Resources.Load<AudioClip>("Sounds/nsmbwiiPowerup");
+        LoseSound = Resources.Load<AudioClip>("Sounds/gameover 1");
+        PlayerDeath = Resources.Load<AudioClip>("Sounds/nsmbwiiDeath");
+        PlayerShoot = Resources.Load<AudioClip>("Sounds/nsmbwiiFireBall");
+        PowerUpSpawn = Resources.Load<AudioClip>("Sounds/smw_power-up_appears");
+        InvincibleMusic = Resources.Load<AudioClip>("Sounds/Super Mario Bros Invincibility Theme Sound Effect");
+        PowerDown = Resources.Load<AudioClip>("Sounds/nsmbwiiPowerDown");
+        PlayerShootHit = Resources.Load<AudioClip>("Sounds/nsmbwiiFireBallHit1");
+        StompSound = Resources.Load<AudioClip>("Sounds/smw_stomp");
+        BossDeath = Resources.Load<AudioClip>("Sounds/E3L6N5R-boss-death-4");
     }
 
     private void Start()
@@ -95,19 +121,19 @@ public class GameManager : MonoBehaviour
         get => _bossKilled;
         set => _bossKilled = value;
     }
-    
+
     public float Volume
     {
         get => _volume;
         set => _volume = value;
     }
-    
+
     public void PlaySound(AudioClip clip)
     {
         if (clip)
             AudioSource.PlayClipAtPoint(clip, Camera.main.transform.position, _volume);
     }
-    
+
     public void PlaySound(AudioSource source, AudioClip clip)
     {
         if (clip)
