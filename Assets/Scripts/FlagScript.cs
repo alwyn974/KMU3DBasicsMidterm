@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FlagScript : MonoBehaviour
@@ -36,6 +33,7 @@ public class FlagScript : MonoBehaviour
         if (gameManager.BossKilled[gameManager.Level] && !_flagDown)
         {
             _flagDown = true;
+            playerScript.PlaySound(playerScript.GameManager.flagDownSound);
         }
     }
 }

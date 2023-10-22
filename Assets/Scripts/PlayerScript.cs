@@ -18,10 +18,12 @@ public class PlayerScript : MonoBehaviour
     private bool _stoppedJumping;
     private bool _dead;
     private GameManager _gameManager;
+    private AudioSource _audioSource;
 
-    public GameObject bulletPrefab;
+    public BulletScript bulletPrefab;
     public Camera gameCamera;
     public float speed = 7;
+    public Transform bulletSpawn;
 
     public float jumpForce = 5;
     public float jumpTime = 8;
@@ -37,6 +39,7 @@ public class PlayerScript : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
+        _audioSource = GetComponent<AudioSource>();
         _gameManager = GameManager.Instance;
         _gameManager.UpdateText();
 
@@ -106,7 +109,12 @@ public class PlayerScript : MonoBehaviour
         else
             _rb.velocity = new Vector2(0, _rb.velocity.y);
 
-        _spriteRenderer.flipX = horizontalAxis < 0;
+        // _spriteRenderer.flipX = horizontalAxis < 0;
+        if (horizontalAxis < 0)
+            transform.localScale = new Vector3(-1, 1, 1);
+        else if (horizontalAxis > 0)
+            transform.localScale = new Vector3(1, 1, 1);
+
         _animator.SetInteger("Speed", Mathf.Abs((int)_rb.velocity.x));
     }
 
@@ -118,7 +126,7 @@ public class PlayerScript : MonoBehaviour
         {
             _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
             _stoppedJumping = false;
-
+            _gameManager.PlaySound(_audioSource, _gameManager.jumpSound);
             if (!_stoppedJumping && _jumpTimeCounter > 0)
             {
                 _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
@@ -143,7 +151,9 @@ public class PlayerScript : MonoBehaviour
         if (_shootIntervalCounter > 0) return;
         _shootIntervalCounter = 1f;
         
-        Instantiate(bulletPrefab, transform.position + new Vector3(1f, 0f, 0f), Quaternion.identity);
+        var bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
+        if (transform.localScale.x < 0)
+            bullet.left = true;
     }
 
     public void Die()
@@ -173,6 +183,7 @@ public class PlayerScript : MonoBehaviour
         {
             case BonusType.Shield:
                 _gameManager.AddScore(1000);
+                _gameManager.PlaySound(_audioSource, _gameManager.powerUpSound);
                 StartCoroutine(Invincible());
                 break;
             case BonusType.Flower:
@@ -180,9 +191,11 @@ public class PlayerScript : MonoBehaviour
                 // StartCoroutine(BonusShoot());
                 _bonusShoot = true;
                 _animator.SetBool("BonusShoot", _bonusShoot);
+                _gameManager.PlaySound(_audioSource, _gameManager.powerUpSound);
                 break;
             case BonusType.Coin:
                 _gameManager.AddCoin();
+                _gameManager.PlaySound(_audioSource, _gameManager.coinSound);
                 break;
         }
     }
@@ -212,6 +225,12 @@ public class PlayerScript : MonoBehaviour
             cameraPosition = new Vector3(0, cameraPosition.y, cameraPosition.z);
         gameCamera.transform.position = cameraPosition;
     }
+    
+    public void PlaySound(AudioClip clip)
+    {
+        if (clip)
+            _audioSource.PlayOneShot(clip, _gameManager.Volume);
+    }
 
     public void NextLevel()
     {
@@ -223,9 +242,16 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
+        _gameManager.PlaySound(_audioSource, _gameManager.castleSound);
         _gameManager.BossKilled[_gameManager.Level] = true;
         _gameManager.Level++;
         _gameManager.AddScore((int) _gameManager.Level * 2000);
         SceneManager.LoadScene($"Level0{(int)_gameManager.Level + 1}Scene");
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(bulletSpawn.position, 0.1f);
     }
 }

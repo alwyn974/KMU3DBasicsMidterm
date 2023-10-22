@@ -9,6 +9,15 @@ public class GameManager : MonoBehaviour
     public TMP_Text infoText;
     public TMP_Text lifeText;
     public TMP_Text coinsText;
+    public AudioClip clickSound;
+    public AudioClip jumpSound;
+    public AudioClip bossShootSound;
+    public AudioClip flagDownSound; // win
+    public AudioClip castleSound; // win
+    public AudioClip coinSound;
+    public AudioClip powerUpSound; // bonus
+    public AudioClip loseSound; // lose
+    private static float _volume = 0.5f;
     private static int _life = 3;
     private static int _coins;
     private static int _score;
@@ -17,17 +26,17 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene($"Level0{(int) _level + 1}Scene");
+        SceneManager.LoadScene($"Level0{(int)_level + 1}Scene");
     }
-    
+
     public void QuitGame()
     {
         Application.Quit();
     }
 
-    public void SoundToggle()
+    public void ShowMusicSettings()
     {
-        // TODO: Implement sound toggle, with sound manager.
+        SceneManager.LoadScene("SettingsMenuScene");
     }
 
     private static Dictionary<Level, bool> _bossKilled = _bossKilled = new Dictionary<Level, bool>
@@ -80,11 +89,29 @@ public class GameManager : MonoBehaviour
         get => _level;
         set => _level = value;
     }
-    
+
     public Dictionary<Level, bool> BossKilled
     {
         get => _bossKilled;
         set => _bossKilled = value;
+    }
+    
+    public float Volume
+    {
+        get => _volume;
+        set => _volume = value;
+    }
+    
+    public void PlaySound(AudioClip clip)
+    {
+        if (clip)
+            AudioSource.PlayClipAtPoint(clip, Camera.main.transform.position, _volume);
+    }
+    
+    public void PlaySound(AudioSource source, AudioClip clip)
+    {
+        if (clip)
+            source.PlayOneShot(clip, _volume);
     }
 
     public void AddLife(int value = 1)
@@ -123,9 +150,12 @@ public class GameManager : MonoBehaviour
     public void UpdateText()
     {
         // infoText.text = $"Life: {_life}\nCoins: {_coins}\nScore: {_score}";
-        infoText.text = $"Score: {_score}";
-        lifeText.text = $"x{_life}";
-        coinsText.text = $"x{_coins}";
+        if (infoText)
+            infoText.text = $"Score: {_score}";
+        if (lifeText)
+            lifeText.text = $"x{_life}";
+        if (coinsText)
+            coinsText.text = $"x{_coins}";
     }
 }
 

@@ -14,9 +14,12 @@ public class RockBoss : MonoBehaviour
     private float _shootIntervalCounter;
     private bool _shooting;
     private bool _dead;
+    private bool _deathAnimationPlayed;
 
     public int life = 50;
+
     public GameObject rockPrefab;
+
     // public float speed = 0.5f;
     public float shootInterval = 5f;
     public PlayerScript playerScript;
@@ -34,6 +37,8 @@ public class RockBoss : MonoBehaviour
 
     private void Update()
     {
+        if (_dead) return;
+
         // detect player entering boss area
         if (_playerDetect.playerDetected)
         {
@@ -43,11 +48,6 @@ public class RockBoss : MonoBehaviour
         }
         else
             _shooting = false;
-
-        if (_dead)
-        {
-            _animator.SetTrigger("Death");
-        }
     }
 
     private IEnumerator Shoot()
@@ -61,10 +61,12 @@ public class RockBoss : MonoBehaviour
                 yield return new WaitForSeconds(0.5f);
                 // shoot rock projectile from top of boss
                 var rock = Instantiate(rockPrefab, transform.position + new Vector3(-1, 0.5f, 0), Quaternion.identity);
+                playerScript.PlaySound(GameManager.Instance.bossShootSound);
                 // add velocity to have a parabolic trajectory
                 rock.GetComponent<Rigidbody2D>().velocity = new Vector2(-1, 1) * 5;
                 // rock.GetComponent<Rigidbody2D>().velocity = new Vector2(-1, 0) * 5;
                 yield return new WaitForSeconds(shootInterval);
+                if (_dead) break;
                 _animator.Play("RockBossIdle");
             }
         }
@@ -85,7 +87,7 @@ public class RockBoss : MonoBehaviour
         {
             playerScript.Die();
         }
-        
+
         if (other.gameObject.CompareTag("Bullet") && _playerDetect.playerDetected)
         {
             // remove 10 life
@@ -101,7 +103,35 @@ public class RockBoss : MonoBehaviour
                 _rb.bodyType = RigidbodyType2D.Static;
                 playerScript.GameManager.BossKilled[bossLevel] = true;
             }
+
             Destroy(other.gameObject, 0.5f); // bullet
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Bullet") && _playerDetect.playerDetected)
+        {
+            // remove 10 life
+            life -= 10;
+            // blink sprite in red
+            StartCoroutine(SpriteBlink());
+
+            if (life < 0)
+            {
+                _dead = true;
+                _animator.SetTrigger("Death");
+                _collider2D.enabled = false;
+                _rb.bodyType = RigidbodyType2D.Static;
+                playerScript.GameManager.BossKilled[bossLevel] = true;
+            }
+
+            Destroy(other.gameObject, 0.5f); // bullet
+        }
+    }
+
+    public void CancelAnimator()
+    {
+        _animator.enabled = false;
     }
 }
