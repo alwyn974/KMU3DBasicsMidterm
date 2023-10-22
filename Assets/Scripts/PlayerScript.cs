@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -28,6 +29,8 @@ public class PlayerScript : MonoBehaviour
     public float jumpForce = 5;
     public float jumpTime = 8;
     private float _jumpTimeCounter;
+    
+    public float ShootInterval = 1f;
     private float _shootIntervalCounter;
 
 
@@ -149,7 +152,7 @@ public class PlayerScript : MonoBehaviour
         if (!Input.GetButtonDown("Fire1")) return;
         // cooldown
         if (_shootIntervalCounter > 0) return;
-        _shootIntervalCounter = 1f;
+        _shootIntervalCounter = ShootInterval;
         
         var bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
         PlaySound(_gameManager.PlayerShoot);
@@ -164,8 +167,7 @@ public class PlayerScript : MonoBehaviour
         if (_gameManager.Life <= 0)
         {
             Debug.Log("Game Over");
-            // TODO: Game Over
-            PlaySound(_gameManager.LoseSound);
+            SceneManager.LoadScene("GameOverScene");
         }
         else
         {
@@ -239,11 +241,12 @@ public class PlayerScript : MonoBehaviour
 
     public void NextLevel()
     {
-        if (_gameManager.Level == Level.Three)
+        var lastLevel = Enum.GetValues(typeof(Level)).Cast<Level>().Max(); // or Last() if no negative values
+        if (_gameManager.Level == lastLevel)
         {
             _gameManager.AddScore((int) _gameManager.Level * 2000);
             Debug.Log("You win");
-            // TODO: Win
+            SceneManager.LoadScene("GameOverScene");
             return;
         }
 

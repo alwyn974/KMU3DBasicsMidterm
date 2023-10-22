@@ -87,4 +87,6 @@ public enum GoombaType
 {
     Snail = 100,
     Beetle = 200,
+    Turtle = 300,
+    Ghost = 400
 }

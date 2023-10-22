@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class MenuScript : MonoBehaviour
 {
-    private AudioSource _audioSource;
-    
     public void StartGame()
     {
         GameManager.Instance.PlaySound(GameManager.Instance.ClickSound);

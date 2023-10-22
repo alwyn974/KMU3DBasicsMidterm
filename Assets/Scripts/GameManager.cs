@@ -43,17 +43,18 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
+    public void RestartGame()
+    {
+        Reset();
+        SceneManager.LoadScene("MainMenuScene");
+    }
+
     public void ShowMusicSettings()
     {
         SceneManager.LoadScene("SettingsMenuScene");
     }
 
-    private static Dictionary<Level, bool> _bossKilled = _bossKilled = new Dictionary<Level, bool>
-    {
-        { Level.One, false },
-        { Level.Two, false },
-        { Level.Three, false }
-    };
+    private static Dictionary<Level, bool> _bossKilled;
 
     private void Awake()
     {
@@ -62,6 +63,9 @@ public class GameManager : MonoBehaviour
             Destroy(this);
         else
             Instance = this;
+        DontDestroyOnLoad(gameObject);
+        Debug.Log("oh");
+        Reset();
         // instanciate audioclip from code with the path of Assets/Sounds/...
         ClickSound = Resources.Load<AudioClip>("Sounds/minecraft_click");
         JumpSound = Resources.Load<AudioClip>("Sounds/smw_jump");
@@ -168,7 +172,7 @@ public class GameManager : MonoBehaviour
         {
             { Level.One, false },
             { Level.Two, false },
-            { Level.Three, false }
+            // { Level.Three, false }
         };
         UpdateText();
     }
@@ -189,5 +193,5 @@ public enum Level
 {
     One,
     Two,
-    Three
+    // Three
 }
