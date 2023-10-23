@@ -25,12 +25,13 @@ public class PlayerScript : MonoBehaviour
     public Camera gameCamera;
     public float speed = 7;
     public Transform bulletSpawn;
+    public RockBoss rockBoss;
 
     public float jumpForce = 5;
     public float jumpTime = 8;
     private float _jumpTimeCounter;
     
-    public float ShootInterval = 1f;
+    public float shootInterval = 1f;
     private float _shootIntervalCounter;
 
 
@@ -152,7 +153,7 @@ public class PlayerScript : MonoBehaviour
         if (!Input.GetButtonDown("Fire1")) return;
         // cooldown
         if (_shootIntervalCounter > 0) return;
-        _shootIntervalCounter = ShootInterval;
+        _shootIntervalCounter = shootInterval;
         
         var bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
         PlaySound(_gameManager.PlayerShoot);
@@ -226,10 +227,21 @@ public class PlayerScript : MonoBehaviour
     void CameraFollowPlayer()
     {
         var cameraPosition = gameCamera.transform.position;
-        cameraPosition = Vector3.Lerp(cameraPosition,
-            new Vector3(transform.position.x, cameraPosition.y, cameraPosition.z), 0.05f);
+        cameraPosition = Vector3.Lerp(cameraPosition, new Vector3(transform.position.x, cameraPosition.y, cameraPosition.z), 0.05f);
         if (cameraPosition.x < 0)
             cameraPosition = new Vector3(0, cameraPosition.y, cameraPosition.z);
+        // lock camera to boss if player is detected in the area
+        if (rockBoss /*&& !rockBoss.Dead*/ && rockBoss.PlayerDetect.playerDetected)
+        {
+            var bossAreaCenterPos = (Vector2)rockBoss.PlayerDetect.detectorOrigin.position + rockBoss.PlayerDetect.detectorOriginOffset;
+            var bossAreaStartPos = bossAreaCenterPos - rockBoss.PlayerDetect.detectorSize / 2;
+            var bossSize = rockBoss.PlayerDetect.detectorSize;
+            var rect = new Rect(bossAreaStartPos, bossSize);
+            if (cameraPosition.x > rect.xMin && cameraPosition.x < rect.xMax)
+                cameraPosition = new Vector3(bossAreaCenterPos.x, cameraPosition.y, cameraPosition.z);
+            cameraPosition = Vector3.Lerp(cameraPosition, gameCamera.transform.position, 0.5f);
+        }
+        
         gameCamera.transform.position = cameraPosition;
     }
     

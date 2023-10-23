@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -27,11 +28,19 @@ public class MusicMenuScript : MonoBehaviour
     public void Confirm()
     {
         GameManager.Instance.Volume = _volume;
-        SceneManager.LoadScene("MainMenuScene");
+        GameManager.Instance.PlaySound(GameManager.Instance.ClickSound);
+        StartCoroutine(LoadMainMenu());
     }
 
     public void Cancel()
     {
+        GameManager.Instance.PlaySound(GameManager.Instance.ClickSound);
+        StartCoroutine(LoadMainMenu());
+    }
+
+    private IEnumerator LoadMainMenu()
+    {
+        yield return new WaitForSeconds(0.5f);
         SceneManager.LoadScene("MainMenuScene");
     }
 

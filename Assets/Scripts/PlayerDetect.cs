@@ -7,7 +7,7 @@ public class PlayerDetect : MonoBehaviour
 
     public Vector2 directionTarget => player.transform.position - detectorOrigin.position;
 
-    [SerializeField] private Transform detectorOrigin;
+    public Transform detectorOrigin;
     public Vector2 detectorSize = Vector2.zero;
     public Vector2 detectorOriginOffset = Vector2.zero;
 

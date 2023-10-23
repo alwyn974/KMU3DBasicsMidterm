@@ -25,6 +25,9 @@ public class RockBoss : MonoBehaviour
     public PlayerScript playerScript;
     public Level bossLevel;
 
+    public PlayerDetect PlayerDetect => _playerDetect;
+    public bool Dead => _dead;
+
 
     private void Start()
     {

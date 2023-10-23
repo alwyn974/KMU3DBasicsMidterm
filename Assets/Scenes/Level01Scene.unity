@@ -2441,6 +2441,10 @@ PrefabInstance:
       value: Parallax
       objectReference: {fileID: 0}
     - target: {fileID: 2976287182370570282, guid: f13d0d3be45479146925da12d663db7d, type: 3}
+      propertyPath: boss
+      value: 
+      objectReference: {fileID: 3899960809665039766}
+    - target: {fileID: 2976287182370570282, guid: f13d0d3be45479146925da12d663db7d, type: 3}
       propertyPath: gameCamera
       value: 
       objectReference: {fileID: 519420031}
@@ -8098,9 +8102,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boss
       objectReference: {fileID: 0}
+    - target: {fileID: 8939500536706836781, guid: 9b6acbbc47bbcac479e140825b5bdef2, type: 3}
+      propertyPath: detectorSize.x
+      value: 18
+      objectReference: {fileID: 0}
     - target: {fileID: 9094572754919438538, guid: 9b6acbbc47bbcac479e140825b5bdef2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.08
+      value: 3.05
       objectReference: {fileID: 0}
     - target: {fileID: 9094572754919438538, guid: 9b6acbbc47bbcac479e140825b5bdef2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -8143,6 +8151,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9b6acbbc47bbcac479e140825b5bdef2, type: 3}
+--- !u!114 &3899960809665039766 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1697495412042098348, guid: 9b6acbbc47bbcac479e140825b5bdef2, type: 3}
+  m_PrefabInstance: {fileID: 3899960809665039765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 406690fa8e79486e9b87421e4b5cecd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4284932723677046974
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8155,6 +8174,10 @@ PrefabInstance:
       propertyPath: speed
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 1592871253210315902, guid: 8f74ba1b22538234887fc18e9fbe39ab, type: 3}
+      propertyPath: rockBoss
+      value: 
+      objectReference: {fileID: 3899960809665039766}
     - target: {fileID: 1592871253210315902, guid: 8f74ba1b22538234887fc18e9fbe39ab, type: 3}
       propertyPath: jumpForce
       value: 8
